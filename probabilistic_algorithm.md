@@ -10,7 +10,7 @@
 
 - **P23-EX2: 在机器上用$4\int_0^1\sqrt{1-x^2}dx$估计$\pi$值，给出不同的$n$值及精度。**
 
-解：代码如下：
+  解：代码如下：
     ```
     import math
     f = lambda x:math.sqrt(1-x**2)
@@ -24,6 +24,7 @@
         ans.append(sum * 4)
     print(ans)
     ```
+    
     <div class="center">
 
     |  分割片数 |    结果   |  精度   |
