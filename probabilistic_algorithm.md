@@ -1,11 +1,14 @@
-﻿# <center> 概率算法作业 </center>
+﻿
+
+
+# <center>概率算法作业</center>
 
 <p align="right">From: USTC研究生课程《算法设计与分析》</p>
 <p align="right">By: SA21011259 张号</p>
 
 - **P20-EX1:  $\pi$的近似值计算中(P19)，若将$y\gets uniform(0,1)$改为$y\gets x$，则算法的估计值为多少？**
 
-解：由于将$y\gets uniform(0,1)$改为$y\gets x$，则生成的点将均匀落在$y=x$，$x\in [0,\frac{\sqrt{2}}{2}]$这条直线上，所以$\frac{4k}{n}\sim2\sqrt{2}$。
+  解：由于将$y\gets uniform(0,1)$改为$y\gets x$，则生成的点将均匀落在$y=x$，$x\in [0,\frac{\sqrt{2}}{2}]$这条直线上，所以$\frac{4k}{n}\sim2\sqrt{2}$。
 <p> 
 
 - **P23-EX2: 在机器上用$4\int_0^1\sqrt{1-x^2}dx$估计$\pi$值，给出不同的$n$值及精度。**
@@ -395,3 +398,88 @@
   |20|13|0.358|39.263|25.774|85.483|
 
   </div>
+
+
+- **P147-EX10：与确定性算法相比较，并给出MillRab的100~10000以内错误的比例。**
+  解：确定性算法，得到$1\sim n$中的素数，代码如下：
+  ```
+  def getPrimeNumber(n):
+      assert n > 0
+      sqrt_n = int(math.sqrt(n))
+      ans = [True] * (n + 1)
+      for i in range(2, sqrt_n + 1):
+          if ans[i]:
+              _i  = i + i
+              while _i <= n:
+                  ans[_i] = False
+                  _i += i
+    
+      return ans
+  ```
+  伪素数鉴定，$a\in [2, n-2]$，其中$n$为奇数，代码如下：
+  ```
+  def Btest(a, n):
+      assert n % 2 and a >=2 and a <= n-2
+      s = 0
+      t = n - 1
+      while True:
+          s += 1
+          t = int(t / 2)
+          if t % 2:
+              break
+      x = (a**t) % n
+      if x == 1 or x == n-1:
+          return True
+      for _ in range(1, s):
+          x = (x * x) % n
+          if x == n-1:
+              return True
+      return False
+  ```
+  Miller-Rabin测试：
+  ```
+  def MillRab(n):
+	  a = np.random.randint(2, n-1)
+	  return Btest(a, n)
+
+  def RepeatMillRab(n, k):
+	  k = max(k, 1)
+	  for _ in range(k):
+		  if MillRab(n) == False:
+			  return False
+	  return True
+  ```
+  性能测试，给出$100\sim 10000$的错误比例：
+  ```
+  def PrintPrimes(N=10000, verbose=False):
+      ans = []
+      if verbose:
+          print(2)
+      ans.append(2)
+      if verbose:
+          print(3)
+      ans.append(3)
+      n = 5
+      while n <= N:
+          if RepeatMillRab(n, int(math.log10(n))):
+              if verbose:
+                  print(n)
+              ans.append(n)
+          n += 2
+      return ans
+  ```
+
+  ```
+  times = 100
+  isPrimeNum = getPrimeNumber(10000)
+  ave = 0
+  for _ in range(times):
+      ans = PrintPrimes()
+      for fakePrime in ans:
+          if fakePrime >= 100:
+              if isPrimeNum[fakePrime] == False:
+                  ave += 1
+  ave = float(ave) / times
+  print('error num: %f\nerror rate: %f%%' %(ave, 100 * ave / (10000 - 100)))
+  ```
+  最终结果$100\sim 10000$数中，Miller-Rabin算法平均错误率为0.002333%。
